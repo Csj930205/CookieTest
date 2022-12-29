@@ -58,10 +58,11 @@ public class CommonUtil {
 
             if (!cookieDecoding.contains(cookieSeq)) {
                 User detailUser = userService.countUp(seq);
+                String cookieAdd = cookieDecoding + cookieSeq;
 
-                String cookieSeqEncoding = Base64Utils.encodeToString(cookieSeq.getBytes());
+                String cookieSeqEncoding = Base64Utils.encodeToString(cookieAdd.getBytes());
 
-                commonCookie.setValue(getCookie + cookieSeqEncoding);
+                commonCookie.setValue(cookieSeqEncoding);
                 commonCookie.setPath("/");
                 commonCookie.setMaxAge(60 * 60 * 24);
                 response.addCookie(commonCookie);
@@ -129,8 +130,7 @@ public class CommonUtil {
         List<User> randomList = userService.randomList();
 
         if (commonCookie != null) {
-            byte[] cookieDecoding = Base64Utils.decode(commonCookie.getValue().getBytes());
-            String cookie = new String(cookieDecoding);
+            String cookie = new String(Base64Utils.decodeFromString(commonCookie.getValue()));
 
             String[] split = StringUtils.split(cookie, "|");
 
