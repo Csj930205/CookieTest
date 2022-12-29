@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @PatchMapping("/countUser/{seq}")
-    public ResponseEntity<Map<String, Object>> countUp(@PathVariable("seq") Long seq, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Map<String, Object>> countUp(@PathVariable("seq") Long seq, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Map<String, Object> result = commonUtil.createCookie(seq, request, response);
 
 

@@ -44,7 +44,7 @@ public class CommonUtil {
      * @param response
      * @return
      */
-    public Map<String, Object> createCookie(Long seq, HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> createCookie(Long seq, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         Cookie commonCookie = commonCookie(request);
 
@@ -54,15 +54,19 @@ public class CommonUtil {
             String cookieSeq = SEP + seq + SEP;
             String getCookie = commonCookie.getValue();
 
-            String cookieDecoding = new String(Base64.getDecoder().decode(getCookie));
+            CipherUtil cipherUtil = new CipherUtil();
+
+            String cookieDecoding = cipherUtil.decrypt(getCookie);
+            System.out.println("cookieDecoding: "+cookieDecoding);
 
             if (!cookieDecoding.contains(cookieSeq)) {
                 User detailUser = userService.countUp(seq);
                 String cookieAdd = cookieDecoding + cookieSeq;
+                System.out.println(cookieAdd);
 
-                String cookieSeqEncoding = Base64Utils.encodeToString(cookieAdd.getBytes());
+                String cookieSeqCipher = cipherUtil.encrypt(cookieAdd);
 
-                commonCookie.setValue(cookieSeqEncoding);
+                commonCookie.setValue(cookieSeqCipher);
                 commonCookie.setPath("/");
                 commonCookie.setMaxAge(60 * 60 * 24);
                 response.addCookie(commonCookie);
@@ -78,9 +82,10 @@ public class CommonUtil {
                 User detailUser = userService.countDown(seq);
 
                  String replaceCookie = cookieDecoding.replace(cookieSeq, "");
-                 String replaceCookieEncoding = Base64Utils.encodeToString(replaceCookie.getBytes());
+                System.out.println("//////////////////" + replaceCookie);
+                String replaceCookieCipher = cipherUtil.encrypt(replaceCookie);
 
-                 Cookie kc = new Cookie("seq", replaceCookieEncoding);
+                 Cookie kc = new Cookie("seq", replaceCookieCipher);
                  kc.setMaxAge(60 * 60 * 24);
                  kc.setPath("/");
                  response.addCookie(kc);
@@ -100,9 +105,10 @@ public class CommonUtil {
             }
         } else {
             User detailUser = userService.countUp(seq);
-            String testEncoding = Base64Utils.encodeToString((SEP + seq + SEP).getBytes());
+            CipherUtil cipherUtil = new CipherUtil();
+            String testEncoding = SEP + seq + SEP;
 
-            Cookie createCookie = new Cookie("seq", testEncoding);
+            Cookie createCookie = new Cookie("seq", cipherUtil.encrypt(testEncoding));
             createCookie.setMaxAge(60 * 60 * 24);
             createCookie.setPath("/");
             response.addCookie(createCookie);
